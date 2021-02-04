@@ -1,92 +1,128 @@
-import inspect
+import functools
 import logging
+import inspect
+import re
 
-from adventurelib import when as _when
+from whimsylib import say
+from whimsylib.globals import poll_events
 
-from whimsylib.globals import poll_events as _poll
+
+class _InvalidCommand(Exception):
+    pass
+
+
+class _CommandTemplate:
+
+    _FORMULA_PATTERN = re.compile("^[a-z][a-z0-9_]*$")
+    _ARGUMENT_PATTERN = re.compile("^[A-Z][A-Z0-9_]*$")
+
+    def __init__(self, command_template, context=None):
+        match = []
+        self._prefix = None
+        self._arguments = []
+
+        # TODO: Do we need the prefixes?
+        for i, word in enumerate(command_template.strip().split()):
+            logging.debug("word IS %s", word)
+            if self._FORMULA_PATTERN.search(word):
+                match.append(r"" + word)
+            elif self._ARGUMENT_PATTERN.search(word):
+                if i == 0:
+                    raise _InvalidCommand("Commands must start with a minuscule word.")
+                # Prefix consists of all non-argument terms before first argument.
+                if self._prefix is None:
+                    self._prefix = " ".join(match)
+                word = word.lower()
+                self._arguments.append(word)
+                match.append(r"" + f"(?P<{word}>.*)")
+            else:
+                raise _InvalidCommand(
+                    "All words in a command must start with a letter and "
+                    "consist only of letters and numbers. Letters in each "
+                    "word must all be of the same case."
+                )
+        self._pattern = re.compile(r"^" + r" +".join(match) + r"$", re.IGNORECASE)
+        logging.debug(self._pattern)
+
+    @property
+    def arguments(self):
+        return self._arguments
+
+    @property
+    def prefix(self):
+        return self._prefix
+
+    def match(self, command):
+        return self._pattern.match(command)
+
+
+class _CommandHandler:
+
+    _COMMANDS = []
+
+    @classmethod
+    def register(cls, command, function, context=None, **kwargs):
+        command_template = _CommandTemplate(command, context)
+
+        signature = inspect.signature(function)
+        base_args = {arg: "dummy" for arg in command_template.arguments}
+        base_args.update(kwargs)
+        try:
+            logging.debug(
+                f'Registering command "{command}" with kwargs {kwargs}; expected arguments are {command_template.arguments}.'
+            )
+            logging.debug(f"Function is {function} with signature {signature}.")
+            _ = signature.bind(**base_args)
+        except TypeError:
+            raise _InvalidCommand(
+                f"Function with signature {signature} cannot accept arguments/keyword arguments "
+                f"{base_args}."
+            )
+
+        cls._COMMANDS.append((command_template, function, kwargs))
+
+    @classmethod
+    def handle(cls, command):
+        command = command.lower().strip()
+        max_matches = -1
+        call_me = None
+        func_me = None
+        for template, function, kwargs in cls._COMMANDS:
+            match = template.match(command)
+            if match is not None:
+                call_kwargs = match.groupdict()
+                if len(call_kwargs) > max_matches:
+                    max_matches = len(call_kwargs)
+                call_kwargs.update(kwargs)
+                call_me = call_kwargs
+                func_me = function
+        if func_me is not None:
+            func_me(**call_me)
+        else:
+            say.insayne(f'I don\'t understand "{command}."')
+
+
+def handle(command):
+    _CommandHandler.handle(command)
+
+
+def poll(poll_before=True, poll_after=True):
+    def poll_decorator(function):
+        @functools.wraps(function)
+        def poll_wrapped(*args, **kwargs):
+            with poll_events(poll_before, poll_after):
+                return function(*args, **kwargs)
+
+        return _poll_wrapped
+
+    return poll_decorator
 
 
 def when(command, context=None, **kwargs):
     """Decorator for command functions."""
 
-    def dec(func):
-        _register(command, func, context, kwargs)
-        return func
+    def when_wrapped(function):
+        _CommandHandler.register(command, function, context, **kwargs)
+        return function
 
-    return dec
-
-
-def _add_parameter_strings(parameter, kind_to_argstrings, kind_to_callstrings):
-    if parameter.kind in {
-        inspect.Parameter.POSITIONAL_ONLY,
-        inspect.Parameter.POSITIONAL_OR_KEYWORD,
-        inspect.Parameter.KEYWORD_ONLY,
-    }:
-        arg_string = parameter.name
-        call_string = parameter.name
-    elif parameter.kind is inspect.Parameter.VAR_POSITIONAL:
-        arg_string = f"*{parameter.name}"
-        call_string = f"*{parameter.name}"
-    elif parameter.kind is inspect.Parameter.VAR_KEYWORD:
-        arg_string = f"**{parameter.name}"
-        call_string = f"**{parameter.name}"
-    if parameter.default is not inspect.Parameter.empty:
-        arg_string = f"{parameter.name}={parameter.default}"
-        call_string = f"{parameter.name}={parameter.name}"
-    kind_to_argstrings.setdefault(parameter.kind, []).append(arg_string)
-    kind_to_callstrings.setdefault(parameter.kind, []).append(call_string)
-
-
-def _build_arg_strings(func):
-    sig = inspect.signature(func)
-    kind_to_argstrings = {}
-    kind_to_callstrings = {}
-    for _, parameter in sig.parameters.items():
-        _add_parameter_strings(parameter, kind_to_argstrings, kind_to_callstrings)
-
-    argument_strings = []
-    for parameter_kind in inspect._ParameterKind:
-        if parameter_kind is inspect.Parameter.KEYWORD_ONLY and kind_to_argstrings.get(
-            parameter_kind
-        ):
-            argument_strings.append("*")
-        argument_strings.extend(kind_to_argstrings.get(parameter_kind, []))
-        if (
-            parameter_kind is inspect.Parameter.POSITIONAL_ONLY
-            and kind_to_argstrings.get(parameter_kind)
-        ):
-            argument_strings.append("/")
-
-    call_strings = []
-    for parameter_kind in inspect._ParameterKind:
-        call_strings.extend(kind_to_callstrings.get(parameter_kind, []))
-
-    return ", ".join(argument_strings), ", ".join(call_strings)
-
-
-def when(command, context=None, **kwargs):
-    def wear_my_args_like_a_nasty_skin_mask(func):
-        arg_string, call_string = _build_arg_strings(func)
-        logging.debug("arg_string: %s", arg_string)
-        logging.debug("call_string: %s", call_string)
-        these_globals = {
-            "_poll": _poll,
-            "logging": logging,
-            "poll_before": kwargs.pop("poll_before", False),
-            "poll_after": kwargs.pop("poll_after", False),
-            "func": func,
-        }
-        these_locals = {}
-
-        exec(
-            f"""def wrapped({arg_string}):
-            with _poll():
-                logging.debug("returning from context")
-                return func({call_string})""",
-            these_globals,
-            these_locals,
-        )
-
-        return _when(command, context=context, **kwargs)(these_locals["wrapped"])
-
-    return wear_my_args_like_a_nasty_skin_mask
+    return when_wrapped
