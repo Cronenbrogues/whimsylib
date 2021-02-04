@@ -1,0 +1,4 @@
+-r requirements-main.txt
+black
+pytest
+pytest-cov
