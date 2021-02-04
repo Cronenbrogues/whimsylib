@@ -9,7 +9,7 @@ This is currently the game engine behind [cronenbroguelike](https://github.com/C
 Set up a virtualenv and install the dev requirements.
 
 ```
-python -m venv venv
+python3.8 -m venv venv
 source venv/bin/activate
 pip install -r requirements/requirements-dev.txt
 ```
