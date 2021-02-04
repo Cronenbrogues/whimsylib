@@ -53,7 +53,7 @@ def _sifted_edits(original, augmented):
 
 
 class InsayneTest(common.EngineTest):
-    @patch("adventurelib.say")
+    @patch("whimsylib.say.output")
     def test_add_newline(self, mock_say):
         say.insayne("nasty pervy voices", add_newline=True, insanity=0)
         mock_say.assert_has_calls(
@@ -68,7 +68,7 @@ class InsayneTest(common.EngineTest):
         )
         say.insayne(original_text, insanity=100)
         augmented = mock_stdout.getvalue()
-        # adventurelib.say freely introduces newlines.
+        # whimsylib.say.output freely introduces newlines.
         augmented = re.sub(r"\n", r" ", augmented)
         reconstructed, _ = _sifted_edits(original_text, augmented)
         self.assertEqual(original_text, reconstructed)
@@ -78,7 +78,7 @@ class InsayneTest(common.EngineTest):
         original_text = "There is no death in all the world."
         say.insayne(original_text, insanity=0)
         augmented = mock_stdout.getvalue()
-        # adventurelib.say freely introduces newlines.
+        # whimsylib.say.output freely introduces newlines.
         augmented = re.sub(r"\n", r" ", augmented)
         _, edits = _sifted_edits(original_text, augmented)
         edited_edits = re.sub(r"\s*", r"", edits)
@@ -90,7 +90,7 @@ class InsayneTest(common.EngineTest):
         original_text = "some text"
         say.insayne(original_text, insanity=100)
         augmented = mock_stdout.getvalue()
-        # adventurelib.say freely introduces newlines.
+        # whimsylib.say.output freely introduces newlines.
         augmented = re.sub(r"\n", r" ", augmented)
         _, edits = _sifted_edits(original_text, augmented)
         edited_edits = re.sub(r"[A-Z]*", r"", edits)
@@ -102,7 +102,7 @@ class InsayneTest(common.EngineTest):
         original_text = "no, not a text, not a text at all"
         say.insayne(original_text, insanity=100)
         augmented = mock_stdout.getvalue()
-        # adventurelib.say freely introduces newlines.
+        # whimsylib.say.output freely introduces newlines.
         augmented = re.sub(r"\n", r" ", augmented)
         _, edits = _sifted_edits(original_text, augmented)
         edited_edits = re.sub(r"[^A-Z]*", r"", edits)
@@ -116,7 +116,7 @@ class InsayneTest(common.EngineTest):
             )
         )
 
-    @patch("adventurelib.say")
+    @patch("whimsylib.say.output")
     @patch("whimsylib.say._hear_voices")
     # TODO: Refactor say module to avoid having to inspect this private function.
     def test_player_insanity_used_by_default(self, mock_hear_voices, _):

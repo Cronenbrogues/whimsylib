@@ -1,9 +1,9 @@
 import random
 import re
+import textwrap
+from shutil import get_terminal_size
 
-import adventurelib
 import zalgo as zalgo_text
-
 from whimsylib.globals import G
 
 
@@ -57,6 +57,23 @@ def _hear_voices(text, insanity):
     return "".join(segments)
 
 
+def output(msg):
+    """Print a message.
+
+    Unlike print(), this deals with de-denting and wrapping of text to fit
+    within the width of the terminal.
+
+    Paragraphs separated by blank lines in the input will be wrapped
+    separately.
+    """
+    msg = str(msg)
+    msg = re.sub(r"^[ \t]*(.*?)[ \t]*$", r"\1", msg, flags=re.M)
+    width = get_terminal_size()[0]
+    paragraphs = re.split(r"\n(?:[ \t]*\n)", msg)
+    formatted = (textwrap.fill(p.strip(), width=width) for p in paragraphs)
+    print("\n\n".join(formatted))
+
+
 def insayne(text, add_newline=True, insanity=None):
     """Renders @text to screen, modified based on player's insanity stat.
 
@@ -64,11 +81,11 @@ def insayne(text, add_newline=True, insanity=None):
     is not pristine. Renders UI text less and less legible as sanity degrades.
     """
     if add_newline:
-        adventurelib.say("")
+        output("")
     if insanity is None:
         insanity = G.player.insanity.value
     text = _hear_voices(text, insanity)
-    adventurelib.say(text)
+    output(text)
 
 
 def capitalized(text):
