@@ -29,7 +29,7 @@ def _y(x):
     return (5 / 900) * (x ** 2) + (4 / 9) * x
 
 
-def _hear_voices(text, insanity):
+def _hear_voices(text: str, insanity: int) -> str:
 
     # TODO: Too much zalgo text! Decide letter-by-letter whether to zalgofy.
     _Z.zalgoChance = _y(insanity) / 100
@@ -57,7 +57,7 @@ def _hear_voices(text, insanity):
     return "".join(segments)
 
 
-def output(msg):
+def output(msg: str) -> None:
     """Print a message.
 
     Unlike print(), this deals with de-denting and wrapping of text to fit
@@ -66,15 +66,15 @@ def output(msg):
     Paragraphs separated by blank lines in the input will be wrapped
     separately.
     """
-    msg = str(msg)
     msg = re.sub(r"^[ \t]*(.*?)[ \t]*$", r"\1", msg, flags=re.M)
-    width = get_terminal_size()[0]
     paragraphs = re.split(r"\n(?:[ \t]*\n)", msg)
-    formatted = (textwrap.fill(p.strip(), width=width) for p in paragraphs)
+    formatted = [
+        textwrap.fill(p.strip(), width=get_terminal_size()[0]) for p in paragraphs
+    ]
     print("\n\n".join(formatted))
 
 
-def insayne(text, add_newline=True, insanity=None):
+def insayne(text: str, add_newline=True, insanity=None) -> None:
     """Renders @text to screen, modified based on player's insanity stat.
 
     Interpolates arcane markings and violent exhortations if player's sanity
@@ -88,7 +88,7 @@ def insayne(text, add_newline=True, insanity=None):
     output(text)
 
 
-def capitalized(text):
+def capitalized(text: str) -> str:
     """Naively capitalizes the first character in some text.
 
     TODO: Make this function smarter, e.g. when text starts with non-ASCII.
@@ -96,7 +96,7 @@ def capitalized(text):
     return text[0].upper() + text[1:]
 
 
-def a(text):
+def a(text: str) -> str:
     """Naively generates the correct form of the indefinite article."""
     if re.search(r"^[aeiou]", text):
         return f"an {text}"
