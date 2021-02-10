@@ -13,8 +13,8 @@ class _InvalidCommand(Exception):
 
 class _CommandTemplate:
 
-    _FORMULA_PATTERN = re.compile("^[a-z][a-z0-9]*$")
-    _ARGUMENT_PATTERN = re.compile("^[A-Z][A-Z0-9]*$")
+    _FORMULA_PATTERN = re.compile("^[a-z][a-z0-9_]*$")
+    _ARGUMENT_PATTERN = re.compile("^[A-Z][A-Z0-9_]*$")
 
     def __init__(self, command_template, context=None):
         match = []
@@ -65,12 +65,18 @@ class _CommandHandler:
         command_template = _CommandTemplate(command, context)
 
         signature = inspect.signature(function)
+        base_args = {arg: "dummy" for arg in command_template.arguments}
+        base_args.update(kwargs)
         try:
-            _ = signature.bind(*command_template.arguments, **kwargs)
+            logging.debug(
+                f'Registering command "{command}" with kwargs {kwargs}; expected arguments are {command_template.arguments}.'
+            )
+            logging.debug(f"Function is {function} with signature {signature}.")
+            _ = signature.bind(**base_args)
         except TypeError:
             raise _InvalidCommand(
-                f"Function with signature {signature} cannot accept arguments "
-                f"[{', '.join(command_template.arguments)}]."
+                f"Function with signature {signature} cannot accept arguments/keyword arguments "
+                f"{base_args}."
             )
 
         cls._COMMANDS.append((command_template, function, kwargs))

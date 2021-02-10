@@ -18,11 +18,25 @@ class WhenTest(unittest.TestCase):
     def tearDown(self):
         when._CommandHandler._COMMANDS.clear()
 
-    def test_register_with_bad_arguments(self):
+    def test_register_with_insufficient_arguments(self):
         with self.assertRaises(when._InvalidCommand):
 
             @when.when("gets the HOSE")
             def gets_the_hose():
+                pass
+
+    def test_register_with_excess_arguments(self):
+        with self.assertRaises(when._InvalidCommand):
+
+            @when.when("gets nothin")
+            def gets_the_hose(the_hose):
+                pass
+
+    def test_register_when_argument_aint_match_placeholder(self):
+        with self.assertRaises(when._InvalidCommand):
+
+            @when.when("gets the HOSE")
+            def gets_the_hose(whose):
                 pass
 
     def test_register_with_bad_capitalization(self):
