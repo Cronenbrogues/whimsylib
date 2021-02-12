@@ -152,10 +152,8 @@ class Actor:
         for statistic in statistics:
             self._statistics[statistic.name] = statistic
             statistic.owner = self
-        self._ai = kwargs.pop("ai", None)
-        if self._ai is not None:
-            self._ai.owner = self
-        self._idle_text = kwargs.pop("idle_text", None)
+        self.ai = kwargs.pop("ai", None)
+        self.idle_text = kwargs.pop("idle_text", None)
         self._death_throes = lambda this: None
         self._inventory = bag.Bag()
         self._read_books = set()
