@@ -56,9 +56,9 @@ class _CommandTemplate:
         return self._pattern.match(command)
 
 
-class _CommandHandler:
+class CommandHandler:
 
-    _COMMANDS = []
+    COMMANDS = []
 
     @classmethod
     def register(cls, command, function, context=None, **kwargs):
@@ -79,7 +79,7 @@ class _CommandHandler:
                 f"{base_args}."
             )
 
-        cls._COMMANDS.append((command_template, function, kwargs))
+        cls.COMMANDS.append((command_template, function, kwargs))
 
     @classmethod
     def handle(cls, command):
@@ -87,7 +87,7 @@ class _CommandHandler:
         max_matches = -1
         call_me = None
         func_me = None
-        for template, function, kwargs in cls._COMMANDS:
+        for template, function, kwargs in cls.COMMANDS:
             match = template.match(command)
             if match is not None:
                 call_kwargs = match.groupdict()
@@ -103,7 +103,7 @@ class _CommandHandler:
 
 
 def handle(command):
-    _CommandHandler.handle(command)
+    CommandHandler.handle(command)
 
 
 def poll(poll_before=True, poll_after=True):
@@ -122,7 +122,7 @@ def when(command, context=None, **kwargs):
     """Decorator for command functions."""
 
     def when_wrapped(function):
-        _CommandHandler.register(command, function, context, **kwargs)
+        CommandHandler.register(command, function, context, **kwargs)
         return function
 
     return when_wrapped

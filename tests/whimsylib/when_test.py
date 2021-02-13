@@ -16,7 +16,7 @@ class WhenTest(unittest.TestCase):
             self._rubadub.dub(lotion, location)
 
     def tearDown(self):
-        when._CommandHandler._COMMANDS.clear()
+        when.CommandHandler.COMMANDS.clear()
 
     def test_register_with_insufficient_arguments(self):
         with self.assertRaises(when._InvalidCommand):
