@@ -78,11 +78,11 @@ class BagTest(common.EngineTest):
         woven_basket.add(cs)
         woven_basket.add(book)
 
-        assert woven_basket.find('chicken wing') is cw
-        assert woven_basket.find('chapstick') is cs
-        assert woven_basket.find('CHAPSTICK') is cs
-        assert woven_basket.find('technological slavery') is book
-        assert not woven_basket.find('taxidermy racoon')
+        assert woven_basket.find("chicken wing") is cw
+        assert woven_basket.find("chapstick") is cs
+        assert woven_basket.find("CHAPSTICK") is cs
+        assert woven_basket.find("technological slavery") is book
+        assert woven_basket.find("taxidermy raccoon") is None
 
 
 class BagDiscardAliasesTest(common.EngineTest):
