@@ -68,6 +68,22 @@ class BagTest(common.EngineTest):
 
         self.assertEqual(expected, actual)
 
+    def test_find(self):
+        """We can find items in a bag by name, case insensitively."""
+        woven_basket = bag.Bag()
+        cw = _ChickenWing.create()
+        cs = _Chapstick.create()
+        book = item.Item("technological slavery")
+        woven_basket.add(cw)
+        woven_basket.add(cs)
+        woven_basket.add(book)
+
+        assert woven_basket.find('chicken wing') is cw
+        assert woven_basket.find('chapstick') is cs
+        assert woven_basket.find('CHAPSTICK') is cs
+        assert woven_basket.find('technological slavery') is book
+        assert not woven_basket.find('taxidermy racoon')
+
 
 class BagDiscardAliasesTest(common.EngineTest):
     def setUp(self):
