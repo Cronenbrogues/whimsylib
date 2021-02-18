@@ -68,10 +68,6 @@ class CommandHandler:
         base_args = {arg: "dummy" for arg in command_template.arguments}
         base_args.update(kwargs)
         try:
-            logging.debug(
-                f'Registering command "{command}" with kwargs {kwargs}; expected arguments are {command_template.arguments}.'
-            )
-            logging.debug(f"Function is {function} with signature {signature}.")
             _ = signature.bind(**base_args)
         except TypeError:
             raise _InvalidCommand(
@@ -93,9 +89,9 @@ class CommandHandler:
                 call_kwargs = match.groupdict()
                 if len(call_kwargs) > max_matches:
                     max_matches = len(call_kwargs)
-                call_kwargs.update(kwargs)
-                call_me = call_kwargs
-                func_me = function
+                    call_kwargs.update(kwargs)
+                    call_me = call_kwargs
+                    func_me = function
         if func_me is not None:
             func_me(**call_me)
         else:
@@ -113,7 +109,7 @@ def poll(poll_before=True, poll_after=True):
             with poll_events(poll_before, poll_after):
                 return function(*args, **kwargs)
 
-        return _poll_wrapped
+        return poll_wrapped
 
     return poll_decorator
 

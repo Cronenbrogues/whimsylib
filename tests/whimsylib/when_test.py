@@ -67,16 +67,27 @@ class WhenTest(unittest.TestCase):
         when.handle("PUT THE LOTION ON THE SKIN")
         self._rubadub.dub.assert_called_once_with("lotion", "the skin")
 
+    def test_handle_different_order(self):
+        it = Mock()
 
-class PollTest:
-    def setUp():
+        @when.when("it does TOLD", this="you know what")
+        @when.when("it does THIS whenever its TOLD")
+        def what_it_does_whenever(this, told):
+            it.does(this, told)
+
+        when.handle("it does that whenever its instructed")
+        it.does.assert_called_once_with("that", "instructed")
+
+
+class PollTest(unittest.TestCase):
+    def setUp(self):
         self._mock_parent = Mock()
         self._mock_parent.pre = Mock()
         G.add_event(self._mock_parent.pre, "pre")
         self._mock_parent.post = Mock()
         G.add_event(self._mock_parent.post, "post")
 
-    def tearDown():
+    def tearDown(self):
         G.reset()
 
     def test_poll_before(self):
@@ -84,6 +95,7 @@ class PollTest:
         def wrapped():
             self._mock_parent.mid()
 
+        wrapped()
         self._mock_parent.assert_has_calls([call.pre.execute(), call.mid()])
 
     def test_poll_after(self):
@@ -91,6 +103,7 @@ class PollTest:
         def wrapped():
             self._mock_parent.mid()
 
+        wrapped()
         self._mock_parent.assert_has_calls([call.mid(), call.post.execute()])
 
     def test_poll_before_and_after_by_default(self):
@@ -98,6 +111,7 @@ class PollTest:
         def wrapped():
             self._mock_parent.mid()
 
+        wrapped()
         self._mock_parent.assert_has_calls(
             [call.pre.execute(), call.mid(), call.post.execute()]
         )
