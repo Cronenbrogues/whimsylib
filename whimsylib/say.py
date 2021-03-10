@@ -3,7 +3,7 @@ import re
 import textwrap
 from shutil import get_terminal_size
 
-from zalgo import Zalgo
+from whimsylib.zalgo import Zalgo
 from whimsylib.globals import G
 
 
