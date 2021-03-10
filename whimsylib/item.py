@@ -1,25 +1,27 @@
-from adventurelib import Item as _Item
+class Item:
+    def __init__(self, name, *aliases, **kwargs):
+        self.name = name
+        self.aliases = tuple(label.lower() for label in (name,) + aliases)
 
+        description = kwargs.get("description")
 
-# TODO: Maybe items should store a reciprocal reference to their containing
-# inventory?
-# TODO: Inheritance was a bad move here. Composition would be better: each
-# item can have a consumable, a readable, an ephemeral, etc. as members.
-class Item(_Item):
-    def __init__(
-        self, *aliases, description=None, idle_description=None, obtainable=True
-    ):
-        """Throws ValueError if no aliases are provided."""
-        name, *aliases = aliases
-        super().__init__(name, *aliases)
         if description is None:
             description = f"a {name}"
+
+        idle_description = kwargs.get("idle_description")
         if idle_description is None:
             idle_description = f"There is a {name} lying on the ground."
+
         self.description = description  # Fully mutable member.
         self.idle_description = idle_description  # Fully mutable member.
         self.holder = None  # Fully mutable member.
-        self._obtainable = obtainable
+        self._obtainable = kwargs.get("obtainable", True)
+
+    def __repr__(self):
+        return f"{type(self).__name__}({', '.join(repr(n) for n in self.aliases)})"
+
+    def __str__(self):
+        return self.name
 
     @property
     def obtainable(self):
