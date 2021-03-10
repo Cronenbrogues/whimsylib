@@ -145,17 +145,17 @@ class Zalgo:
                 randint = random.randint(0, 2)
                 if randint == 0:
                     if numU > 0:
-                        letter = self.combineWithDiacritic(letter, self.du)
+                        letter = _combine_with_diacritic(letter, self.du)
                         numAccents += 1
                         numU -= 1
                 elif randint == 1:
                     if numD > 0:
-                        letter = self.combineWithDiacritic(letter, self.dd)
+                        letter = _combine_with_diacritic(letter, self.dd)
                         numD -= 1
                         numAccents += 1
                 else:
                     if numM > 0:
-                        letter = self.combineWithDiacritic(letter, self.dm)
+                        letter = _combine_with_diacritic(letter, self.dm)
                         numM -= 1
                         numAccents += 1
 
@@ -163,11 +163,12 @@ class Zalgo:
 
         return new_word
 
-    def combineWithDiacritic(self, letter, diacriticList):
-        """
-        Combines letter and a random character from diacriticList
-        """
-        return (
-            letter.strip()
-            + diacriticList[random.randrange(0, len(diacriticList))].strip()
-        )
+
+def _combine_with_diacritic(letter, diacritic_list):
+    """
+    Combines letter and a random character from diacritic_list
+    """
+    return (
+        letter.strip()
+        + diacritic_list[random.randrange(0, len(diacritic_list))].strip()
+    )
