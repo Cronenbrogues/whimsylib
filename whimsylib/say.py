@@ -3,11 +3,11 @@ import re
 import textwrap
 from shutil import get_terminal_size
 
-import zalgo as zalgo_text
+from zalgo import Zalgo
 from whimsylib.globals import G
 
 
-_Z = zalgo_text.zalgo()
+_Z = Zalgo()
 _Z.numAccentsUp = (1, 10)
 _Z.numAccentsDown = (1, 10)
 _Z.numAccentsMiddle = (1, 4)
