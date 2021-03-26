@@ -44,8 +44,6 @@ class _GameState:
         queue.clear()
         logging.debug("Queue is %s", queue)
         logging.debug("new_queue is %s", new_queue)
-        # TODO: Rename this method.
-        # TODO: Remove this method from Room.
         # TODO: Make Event.execute a generator to avoid this will_execute stuff.
         for next_event in new_queue:
             logging.debug("next_event is %s", next_event)
