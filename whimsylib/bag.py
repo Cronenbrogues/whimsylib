@@ -94,10 +94,6 @@ class Bag(set):
         self._discard_aliases(result)
         return result
 
-    def remove(self, item):
-        super().remove(item)
-        self._discard_aliases(item)
-
     def symmetric_difference(self, other_bag):
         return Bag(super().symmetric_difference(other_bag))
 
