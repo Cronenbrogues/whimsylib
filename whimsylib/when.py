@@ -20,6 +20,7 @@ class _CommandTemplate:
         match = []
         self._prefix = None
         self._arguments = []
+        self._command_template = command_template
 
         # TODO: Do we need the prefixes?
         for i, word in enumerate(command_template.strip().split()):
@@ -43,6 +44,10 @@ class _CommandTemplate:
                 )
         self._pattern = re.compile(r"^" + r" +".join(match) + r"$", re.IGNORECASE)
         logging.debug(self._pattern)
+
+    @property
+    def command_template(self):
+        return self._command_template
 
     @property
     def arguments(self):
@@ -122,3 +127,24 @@ def when(command, context=None, **kwargs):
         return function
 
     return when_wrapped
+
+
+# `help` should be available unconditionally.
+@when("help")
+def _help():
+    """Prints this help message."""
+    # TODO: Sort.
+    for command, function, _ in CommandHandler.COMMANDS:
+        hint = f"{command.command_template}"
+        docstring = function.__doc__
+        if docstring:
+            first_line = docstring.split("\n")[0]
+            hint += f": {first_line}"
+        say.insayne(hint)
+
+
+# `exit` and `quit` should be available unconditionally.
+@when("exit")
+@when("quit")
+def _exit():
+    raise KeyboardInterrupt

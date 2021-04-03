@@ -1,6 +1,8 @@
+import importlib
 import unittest
 from unittest.mock import call
 from unittest.mock import Mock
+from unittest.mock import patch
 
 from whimsylib.globals import G
 from whimsylib import when
@@ -13,10 +15,11 @@ class WhenTest(unittest.TestCase):
         @when.when("put the LOTION on LOCATION")
         @when.when("put the LOTION", location="the skin")
         def put_the_lotion(lotion, location):
+            """Puts the LOTION directly on there."""
             self._rubadub.dub(lotion, location)
 
     def tearDown(self):
-        when.CommandHandler.COMMANDS.clear()
+        importlib.reload(when)
 
     def test_register_with_insufficient_arguments(self):
         with self.assertRaises(when._InvalidCommand):
@@ -77,6 +80,38 @@ class WhenTest(unittest.TestCase):
 
         when.handle("it does that whenever its instructed")
         it.does.assert_called_once_with("that", "instructed")
+
+    def test_quit(self):
+        with self.assertRaises(KeyboardInterrupt):
+            when.handle("exit")
+
+    def test_exit(self):
+        with self.assertRaises(KeyboardInterrupt):
+            when.handle("quit")
+
+    @patch("whimsylib.when.say.insayne")
+    def test_help_and_theys_always_help_exit_and_quit_commands(self, q_lazzarus):
+        when.handle("help")
+        # TODO: Sort; any_order=False.
+        q_lazzarus.assert_has_calls(
+            [
+                call("help: Prints this help message."),
+                call("put the LOTION on LOCATION: Puts the LOTION directly on there."),
+                call("put the LOTION: Puts the LOTION directly on there."),
+                call("quit"),
+                call("exit"),
+            ],
+            any_order=True,
+        )
+
+    @patch("whimsylib.when.say.insayne")
+    def test_help_without_a_docstring(self, q_lazzarus):
+        @when.when("goodbye horses")
+        def no_docstring():
+            pass
+
+        when.handle("help")
+        q_lazzarus.assert_called_with("goodbye horses")
 
 
 class PollTest(unittest.TestCase):
