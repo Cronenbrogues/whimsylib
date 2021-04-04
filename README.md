@@ -1,4 +1,4 @@
-[![PyPi version](https://img.shields.io/pypi/v/whimsylib.svg)](https://pypi.org/project/whimsylib/)
+[![PyPI version](https://img.shields.io/pypi/v/whimsylib.svg)](https://pypi.org/project/whimsylib/)
 
 # whimsylib
 
@@ -18,10 +18,8 @@ pip install -r requirements/requirements-dev.txt
 
 ## Release
 
-Update the version number in `setup.py`, create the release files, and upload them to PyPI.
+Update the version number in `setup.py`, and then push a new tag with that version number. This will trigger a Github Action that publishes the new version to [PyPI](https://pypi.org/project/whimsylib/).
 
-```
-pip install -r requirements/requirements-release.txt
-python setup.py sdist bdist_wheel
-twine upload dist/*
-```
+## API Documentation
+
+Coming soon!
