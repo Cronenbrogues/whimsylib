@@ -22,4 +22,4 @@ jobs:
           pypi_token: ${{ secrets.PYPI_TOKEN }}
         run: envsubst < "pypirc" > ".pypirc"
       - name: Upload release with twine
-        run: twine upload dist/*
+        run: twine upload --config-file .pypirc dist/*
