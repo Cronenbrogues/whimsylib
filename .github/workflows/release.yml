@@ -1,0 +1,25 @@
+name: Publish to PyPI
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install release dependencies and build package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements/requirements-release.txt
+          python setup.py sdist bdist_wheel
+      - name: Setup PyPI config 
+        env:
+          pypi_token: ${{ secrets.PYPI_TOKEN }}
+        run: envsubst < "pypirc" > ".pypirc"
+      - name: Upload release with twine
+        run: twine upload dist/*
