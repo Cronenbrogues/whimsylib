@@ -26,11 +26,10 @@ def _y(x):
 
     Then explodes.
     """
-    return (5 / 900) * (x ** 2) + (4 / 9) * x
+    return (5 / 900) * (x**2) + (4 / 9) * x
 
 
 def _hear_voices(text: str, insanity: int) -> str:
-
     # TODO: Too much zalgo text! Decide letter-by-letter whether to zalgofy.
     _Z.zalgoChance = _y(insanity) / 100
     _Z.maxAccentsPerLetter = max(1, int(insanity / 10))

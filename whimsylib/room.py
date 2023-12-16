@@ -6,7 +6,6 @@ from whimsylib.globals import G
 
 
 class Room:
-
     DEFAULT_THEME = "neutral"
     REQUIRED = False
     THEME_TO_ROOMS = {}

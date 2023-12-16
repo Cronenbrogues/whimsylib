@@ -12,7 +12,6 @@ class _InvalidCommand(Exception):
 
 
 class _CommandTemplate:
-
     _FORMULA_PATTERN = re.compile("^[a-z][a-z0-9_]*$")
     _ARGUMENT_PATTERN = re.compile("^[A-Z][A-Z0-9_]*$")
 
@@ -62,7 +61,6 @@ class _CommandTemplate:
 
 
 class CommandHandler:
-
     COMMANDS = []
 
     @classmethod

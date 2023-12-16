@@ -6,7 +6,6 @@ from whimsylib import tartarus
 
 
 class _Statistic:
-
     _NAME = None
     _MINIMUM_VALUE = 0
 
@@ -36,7 +35,6 @@ class _Statistic:
 
 
 class _StaticStatistic(_Statistic):
-
     _NAME = None
 
     def __init_subclass__(cls):
@@ -52,7 +50,6 @@ class _StaticStatistic(_Statistic):
 
 
 class _VariableStatistic(_Statistic):
-
     _NAME = None
 
     def __init__(self, *args, **kwargs):
@@ -135,7 +132,6 @@ class Stamina(_StaticStatistic):
 # _characters bag and added to the _items bag (or otherwise prevented from
 # attacking, maybe with a separate bag for corpses?).
 class Actor:
-
     _CANONICAL_STAT_ORDER = [
         "health",
         "psyche",
