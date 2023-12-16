@@ -69,7 +69,7 @@ class Chill(AI):
 
     def choose_action(self, unused_room, impulse=None):
         event_set = self._events.get(impulse, [self._default_event])
-        result = random.sample(event_set, 1)[0]
+        result = random.sample(sorted(event_set), 1)[0]
         if result is not None:
             # TODO: deepcopy is a terrible way to fix this issue. Events should be
             # passes as classes, not instances. deepcopy absolutely barfs on
